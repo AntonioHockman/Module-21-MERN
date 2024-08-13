@@ -1,7 +1,9 @@
 
 // import user model
 const userController = require('../server/controllers/user-controller');
-const { User } = require('../server/models');
+const { User } = require('../server/models/User');
+//importing bookschema from models
+const {Book} = require ('../server/models/Book')
 const { AuthenticationError } = require('../server/utils/auth');
 // import sign token function from auth
 const { signToken } = require('../utils/auth');
@@ -44,9 +46,35 @@ const resolvers = {
       const token = signToken(user);
       return { token, user };
     },
+  
+  //adding book mutation
+  addBook : async (parent, {bookId, book}, context) => { 
+    if (context.book) {
+      return Book.findOneAndUpdate(
+        {_id: profileId},
+        { $addToBook : {books:book},
+      },
+      {
+        new:true,
+        runValidators: true,
+      }
+      );
+    }
+    //if not logged in, throw an error
+    throw AuthenticationError;
   },
-
-
+    removeBook: async (parent, {book},
+    context) => {
+      if (context.book) {
+        return Book.findOneAndUpdate(
+          {_id: context.book.bookId},
+          {$pull : { books:book} },
+          {new:true} 
+        );
+      }
+      throw AuthenticationError;
+    },
+  },
 };
   module.exports = resolvers;
 
