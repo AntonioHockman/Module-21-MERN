@@ -48,34 +48,24 @@ const resolvers = {
     },
   
   //adding book mutation
-  addBook : async (parent, {bookId, book}, context) => { 
-    if (context.book) {
-      return Book.findOneAndUpdate(
-        {_id: profileId},
-        { $addToBook : {books:book},
-      },
-      {
-        new:true,
-        runValidators: true,
-      }
-      );
-    }
-    //if not logged in, throw an error
-    throw AuthenticationError;
-  },
-    removeBook: async (parent, {book},
-    context) => {
-      if (context.book) {
-        return Book.findOneAndUpdate(
-          {_id: context.book.bookId},
-          {$pull : { books:book} },
-          {new:true} 
-        );
-      }
-      throw AuthenticationError;
+  addBook : async (parent, { authors, description, bookId, image, link, title}) => {
+          // Create and return the new School object
+          return await Book.create({ authors,description, bookId, image, link, title});
+        },
     },
-  },
-};
+    removeBook: async (parent, {book},
+      context) => {
+        if (context.book) {
+          return await Book.findOneAndDelete(
+            {_id: context.book.bookId},
+            {$pull : { books:book} },
+            {new:true} 
+          );
+        }
+        //if not logged in, throw an error
+        throw AuthenticationError;
+      },
+    };
   module.exports = resolvers;
-
+  
   //log in user, saving book, deleting book, need mutation here 
